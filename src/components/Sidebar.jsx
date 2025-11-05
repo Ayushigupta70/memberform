@@ -21,9 +21,8 @@ const Sidebar = () => {
     const menuItems = [
         { label: "Dashboard", route: "/dashboard", icon: <DashboardIcon /> },
         { label: "Member", route: "/society", icon: <People /> },
-        { label: "Administrator", route: "/administrator", icon: <AdminPanelSettingsIcon /> },
-        { label: "Amenities Booking", route: "/amenities", icon: <EventSeatIcon /> },
-        { label: "Reports", route: "/reports", icon: <AssessmentIcon /> },
+        { label: "Report", route: "/report", icon: <AssessmentIcon /> },
+        { label: "Greeting", route: "/greeting", icon: <EventSeatIcon /> },
         { label: "Settings", route: "/settings", icon: <SettingsIcon /> },
     ];
 

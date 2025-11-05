@@ -7,10 +7,9 @@ import {
     Box,
     MenuItem
 } from "@mui/material";
-import { Person as PersonIcon } from "@mui/icons-material";
+import { Person as PersonIcon, Phone as PhoneIcon, } from "@mui/icons-material";
 import StyledTextField from '../../ui/StyledTextField';
 import SectionHeader from '../../layout/SectionHeader';
-
 
 const PersonalInfoForm = ({ formData, handleChange }) => {
     return (
@@ -70,6 +69,44 @@ const PersonalInfoForm = ({ formData, handleChange }) => {
                             <MenuItem value="Widowed">Widowed</MenuItem>
                         </StyledTextField>
                     </Grid>
+                    <Grid size={{ xs: 12, sm: 2 }} >
+                        <StyledTextField
+                            select
+                            label="Religion"
+                            value={formData.remarks.religion}
+                            onChange={(e) => handleChange("memberDetails", "religion", e.target.value)}
+                        >
+                            <MenuItem value=""><em>Select Religion</em></MenuItem>
+                            <MenuItem value="Hindu">Hindu</MenuItem>
+                            <MenuItem value="Muslim">Muslim</MenuItem>
+                            <MenuItem value="Christian">Christian</MenuItem>
+                            <MenuItem value="Sikh">Sikh</MenuItem>
+                            <MenuItem value="Buddhist">Buddhist</MenuItem>
+                            <MenuItem value="Jain">Jain</MenuItem>
+                            <MenuItem value="Other">Other</MenuItem>
+                        </StyledTextField>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Typography variant="h6" sx={{ mb: 2, color: '#374151', display: 'flex', alignItems: 'center' }}>
+                            <PhoneIcon sx={{ mr: 1 }} />
+                            Contact Information
+                        </Typography>
+                    </Grid>
+
+                    {[
+                        ["mobileNumber", "Mobile No."],
+                        ["landlineNumber", "Landline No."],
+                        ["alternateFamilyContact", "Alternate Family Contact No."],
+                        ["emailId", "Email ID"],
+                    ].map(([field, label], idx) => (
+                        <Grid item xs={12} sm={6} key={idx}>
+                            <StyledTextField
+                                label={label}
+                                value={formData.contactDetails[field]}
+                                onChange={(e) => handleChange("memberDetails", field, e.target.value)}
+                            />
+                        </Grid>
+                    ))}
                 </Grid>
             </CardContent>
         </Card>

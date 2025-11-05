@@ -8,8 +8,6 @@ import {
 import { Home as HomeIcon, Phone as PhoneIcon, Person as PersonIcon } from "@mui/icons-material";
 import StyledTextField from '../../ui/StyledTextField';
 import SectionHeader from '../../layout/SectionHeader';
-
-
 const AddressContactForm = ({ formData, handleChange }) => {
     return (
         <Card sx={{ borderRadius: 3, boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }}>
@@ -47,29 +45,6 @@ const AddressContactForm = ({ formData, handleChange }) => {
                             onChange={(e) => handleChange("addressAndReference", "previousAddress", e.target.value)}
                         />
                     </Grid>
-
-                    <Grid item xs={12}>
-                        <Typography variant="h6" sx={{ mb: 2, color: '#374151', display: 'flex', alignItems: 'center' }}>
-                            <PhoneIcon sx={{ mr: 1 }} />
-                            Contact Information
-                        </Typography>
-                    </Grid>
-
-                    {[
-                        ["mobileNumber", "Mobile No."],
-                        ["landlineNumber", "Landline No."],
-                        ["alternateFamilyContact", "Alternate Family Contact No."],
-                        ["emailId", "Email ID"],
-                    ].map(([field, label], idx) => (
-                        <Grid item xs={12} sm={6} key={idx}>
-                            <StyledTextField
-                                label={label}
-                                value={formData.contactDetails[field]}
-                                onChange={(e) => handleChange("contactDetails", field, e.target.value)}
-                            />
-                        </Grid>
-                    ))}
-
                     <Grid item xs={12}>
                         <Typography variant="h6" sx={{ mb: 2, color: '#374151', display: 'flex', alignItems: 'center' }}>
                             <PersonIcon sx={{ mr: 1 }} />
