@@ -23,6 +23,7 @@ const Sidebar = () => {
         { label: "Member", route: "/society", icon: <People /> },
         { label: "Report", route: "/report", icon: <AssessmentIcon /> },
         { label: "Greeting", route: "/greeting", icon: <EventSeatIcon /> },
+        { label: "Member Detail", route: "/memberdetail", icon: <AdminPanelSettingsIcon /> },
         { label: "Settings", route: "/settings", icon: <SettingsIcon /> },
     ];
 

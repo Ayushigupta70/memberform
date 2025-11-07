@@ -5,6 +5,7 @@ import Dashboard from '../pages/Dashboard';
 import MemberDossierForm from '../pages/MemberDossierForm';
 import MissingMemberFilter from '../pages/Report';
 import FestivalGreetingPage from '../pages/Greeting';
+import MemberDetailsPage from '../pages/MemberDetail';
 const MainRoutes = () => {
   return (
     <Routes>
@@ -14,6 +15,7 @@ const MainRoutes = () => {
         <Route path="/society" element={<MemberDossierForm />} />
         <Route path="/report" element={<MissingMemberFilter />}></Route>
         <Route path="/greeting" element={<FestivalGreetingPage />}></Route>
+        <Route path="/memberdetail" element={<MemberDetailsPage />}></Route>
       </Route >
     </Routes >
 
