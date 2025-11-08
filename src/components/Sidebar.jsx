@@ -41,7 +41,7 @@ const Sidebar = () => {
                 variant="h6"
                 sx={{ fontWeight: 700, color: "#1a237e", mb: 2, textAlign: "center" }}
             >
-                mysociety
+                CA Co-operative Society
             </Typography>
             <Divider sx={{ mb: 2 }} />
             <List>

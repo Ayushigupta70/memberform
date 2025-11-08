@@ -26,11 +26,15 @@ import {
     Grid,
     Card,
     CardContent,
+    Tabs,
+    Tab,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import CloseIcon from "@mui/icons-material/Close";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { Formik, Form } from "formik";
@@ -115,8 +119,6 @@ const FIELD_MAP = {
     "documents.aadhaarNoPhoto": "Aadhaar Photo",
     "documents.voterIdPhoto": "Voter ID Photo",
     "documents.passportNoPhoto": "Passport Photo",
-
-    // Professional
     "professionalDetails.qualification": "Qualification",
     "professionalDetails.occupation": "Occupation",
 
@@ -291,6 +293,8 @@ const SAMPLE_MEMBERS = [
 
 // Member Preview Component
 const MemberPreview = ({ member, open, onClose }) => {
+    const [viewType, setViewType] = useState('all'); // 'all', 'missing', 'filled'
+
     const generateMemberPDF = (memberData) => {
         const doc = new jsPDF();
         doc.setFontSize(16);
@@ -309,9 +313,14 @@ const MemberPreview = ({ member, open, onClose }) => {
         fieldKeys.forEach((fieldKey) => {
             const fieldName = FIELD_MAP[fieldKey];
             const value = getValueByPath(memberData, fieldKey);
+            const missing = isMissing(value);
+
+            // Skip fields based on view type
+            if (viewType === 'missing' && !missing) return;
+            if (viewType === 'filled' && missing) return;
 
             let displayValue = "Missing";
-            if (!isMissing(value)) {
+            if (!missing) {
                 if (Array.isArray(value)) {
                     displayValue = value.join(", ");
                 } else if (typeof value === "object" && value !== null) {
@@ -360,7 +369,7 @@ const MemberPreview = ({ member, open, onClose }) => {
             });
         }
 
-        doc.save(`${memberName}_${membershipNo}_Complete_Details.pdf`);
+        doc.save(`${memberName}_${membershipNo}_${viewType}_details.pdf`);
     };
 
     const formatValue = (value) => {
@@ -377,6 +386,20 @@ const MemberPreview = ({ member, open, onClose }) => {
 
     if (!member) return null;
 
+    // Filter fields based on view type
+    const filteredFields = Object.keys(FIELD_MAP).filter(fieldKey => {
+        const value = getValueByPath(member, fieldKey);
+        const missing = isMissing(value);
+
+        if (viewType === 'all') return true;
+        if (viewType === 'missing') return missing;
+        if (viewType === 'filled') return !missing;
+        return true;
+    });
+
+    const missingCount = Object.keys(FIELD_MAP).filter(f => isMissing(getValueByPath(member, f))).length;
+    const filledCount = Object.keys(FIELD_MAP).length - missingCount;
+
     return (
         <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
             <DialogTitle>
@@ -389,19 +412,91 @@ const MemberPreview = ({ member, open, onClose }) => {
                     </IconButton>
                 </Box>
             </DialogTitle>
+
+            {/* Tabs for Missing/Filled Fields */}
+            <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 3 }}>
+                <Tabs
+                    value={viewType}
+                    onChange={(e, newValue) => setViewType(newValue)}
+                    aria-label="field view tabs"
+                >
+                    <Tab
+                        value="all"
+                        label={
+                            <Box display="flex" alignItems="center" gap={1}>
+                                <Typography>All Fields</Typography>
+                                <Chip
+                                    label={Object.keys(FIELD_MAP).length}
+                                    size="small"
+                                    variant="outlined"
+                                />
+                            </Box>
+                        }
+                    />
+                    <Tab
+                        value="missing"
+                        label={
+                            <Box display="flex" alignItems="center" gap={1}>
+                                <ErrorOutlineIcon color="error" fontSize="small" />
+                                <Typography>Missing Fields</Typography>
+                                <Chip
+                                    label={missingCount}
+                                    size="small"
+                                    color="error"
+                                    variant="outlined"
+                                />
+                            </Box>
+                        }
+                    />
+                    <Tab
+                        value="filled"
+                        label={
+                            <Box display="flex" alignItems="center" gap={1}>
+                                <CheckCircleOutlineIcon color="success" fontSize="small" />
+                                <Typography>Filled Fields</Typography>
+                                <Chip
+                                    label={filledCount}
+                                    size="small"
+                                    color="success"
+                                    variant="outlined"
+                                />
+                            </Box>
+                        }
+                    />
+                </Tabs>
+            </Box>
+
             <DialogContent dividers>
                 <Grid container spacing={3}>
-                    {Object.keys(FIELD_MAP).map((fieldKey) => {
+                    {filteredFields.map((fieldKey) => {
                         const fieldName = FIELD_MAP[fieldKey];
                         const value = getValueByPath(member, fieldKey);
+                        const missing = isMissing(value);
 
                         return (
                             <Grid size={{ xs: 12, md: 3 }} key={fieldKey}>
-                                <Card variant="outlined">
+                                <Card
+                                    variant="outlined"
+                                    sx={{
+                                        borderColor: missing ? 'error.main' : 'success.main',
+                                        backgroundColor: missing ? '#fff5f5' : '#f5fff5'
+                                    }}
+                                >
                                     <CardContent>
-                                        <Typography variant="subtitle2" color="primary" gutterBottom>
-                                            {fieldName}
-                                        </Typography>
+                                        <Box display="flex" alignItems="center" gap={1} mb={1}>
+                                            {missing ? (
+                                                <ErrorOutlineIcon color="error" fontSize="small" />
+                                            ) : (
+                                                <CheckCircleOutlineIcon color="success" fontSize="small" />
+                                            )}
+                                            <Typography
+                                                variant="subtitle2"
+                                                color={missing ? "error" : "success"}
+                                                gutterBottom
+                                            >
+                                                {fieldName}
+                                            </Typography>
+                                        </Box>
                                         <Typography variant="body2">
                                             {formatValue(value)}
                                         </Typography>
@@ -411,8 +506,25 @@ const MemberPreview = ({ member, open, onClose }) => {
                         );
                     })}
 
+                    {filteredFields.length === 0 && (
+                        <Grid size={{ xs: 12 }}>
+                            <Box sx={{ textAlign: 'center', py: 4 }}>
+                                <Typography variant="h6" color="text.secondary">
+                                    {viewType === 'missing'
+                                        ? "No missing fields found!"
+                                        : "No filled fields found!"}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    {viewType === 'missing'
+                                        ? "All fields are properly filled for this member."
+                                        : "All fields are missing for this member."}
+                                </Typography>
+                            </Box>
+                        </Grid>
+                    )}
+
                     {/* Loan Details Section */}
-                    {member.loanDetails && member.loanDetails.length > 0 && (
+                    {member.loanDetails && member.loanDetails.length > 0 && viewType !== 'missing' && (
                         <Grid size={{ xs: 12 }}>
                             <Card variant="outlined">
                                 <CardContent>
@@ -442,7 +554,7 @@ const MemberPreview = ({ member, open, onClose }) => {
                     startIcon={<PictureAsPdfIcon />}
                     onClick={() => generateMemberPDF(member)}
                 >
-                    Download Complete PDF
+                    Download {viewType === 'all' ? 'All' : viewType === 'missing' ? 'Missing' : 'Filled'} PDF
                 </Button>
             </DialogActions>
         </Dialog>
@@ -716,5 +828,4 @@ const MissingMembersTable = ({ members = SAMPLE_MEMBERS }) => {
         </Box>
     );
 };
-
 export default MissingMembersTable;
